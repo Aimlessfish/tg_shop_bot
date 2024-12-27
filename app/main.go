@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	controller "./controller/controller"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func main() {
+func main() err{
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "Main")
 
-	bot, err := tgbotapi.NewBotAPI("") // call from .env
+	err := controller.StartBot()
 	if err != nil {
-		logger.Warn("Error running NewBot", "Error", err.Error())
+		logger.Warn("Error starting shop!", "controller.StartBot", err.Error())
 		os.Exit(1)
 	}
-	logger.Info(fmt.Sprintf("Connected to account %v", bot.Self.UserName))
+	return nil
 }
