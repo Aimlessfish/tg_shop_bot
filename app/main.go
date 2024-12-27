@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
-	controller "./controller/controller"
 
+	controller "github.com/Aimlessfish/tg_shop_bot/controller"
 )
 
-func main() err{
+func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "Main")
@@ -18,5 +17,4 @@ func main() err{
 		logger.Warn("Error starting shop!", "controller.StartBot", err.Error())
 		os.Exit(1)
 	}
-	return nil
 }

@@ -1,13 +1,14 @@
 package controller
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func StartBot() err{
+func StartBot() error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "Shop")
@@ -25,16 +26,15 @@ func StartBot() err{
 	}
 
 	logger.Info(fmt.Sprintf("Connected to account %v", bot.Self.UserName))
-	return nil
 
 	//update handler
 	update_channel := tgbotapi.NewUpdate(0)
-	update_channel.Timeout = 60 
+	update_channel.Timeout = 60
 	updates := bot.GetUpdatesChan(update_channel)
 
 	for update := range updates {
-		if update.Message != nil { //manage text	
-			logger.Info("Received message update", "chatID", update.Messahe.Chat.ID, "text", update.Message.text)
+		if update.Message != nil { //manage text
+			logger.Info("Received message update", "chatID", update.Message.Chat.ID, "text", update.Message.Text)
 			go HandleIncomingMessage(bot, update)
 		} else if update.CallbackQuery != nil { //manage button presses
 			logger.Info("Received callback query!", "callbackData", update.CallbackQuery.Data)
@@ -44,20 +44,22 @@ func StartBot() err{
 	return nil
 }
 
-func HandleIncomingMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) err {
+func HandleIncomingMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
+	// Check if the message is not nil
 	if update.Message != nil {
+		// If it's a command, process it with CommandControl
 		if update.Message.IsCommand() {
-			CommandControl(bot, update.Messages)
-		} else if update.CallbackQuery != nil {
-			HandleCallbackQuery(bot, update)
-		}
+			CommandControl(bot, update.Message) // Corrected: use `update.Message`
+		} else if update.CallbackQuery != nil { // Handle callback query if present
+			HandleCallbackQuery(bot, update) // Call HandleCallbackQuery function
 		}
 	}
-	return nil
+	return nil // Return nil if no errors
 }
 
-func CommandControl(bot *tgbotapi.BotAPI, message *tgbotapi.Message) err {
-	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+func CommandControl(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 	logger = slog.With("LogID", "CommandControl")
 	switch message.Command() {
 	case "start":
@@ -74,29 +76,30 @@ func CommandControl(bot *tgbotapi.BotAPI, message *tgbotapi.Message) err {
 	return nil
 }
 
-func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) err {
+func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Welcome! Please use the buttons to navigate the store.")
 	bot.Send(msg)
 	return nil
 }
 
-func HandleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) err {
+func HandleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Please use /start to start!")
 	bot.Send(msg)
 	return nil
 }
 
-func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) err {
+func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	query := update.CallbackQuery
 	response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
 	bot.Request(response)
 	return nil
 }
 
-
-func GenerateInlineKeyboard() err{
-	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+func GenerateInlineKeyboard() error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 	logger = slog.With("LogID", "InlineGenerator")
 
+	return nil
 
 }

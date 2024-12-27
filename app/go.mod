@@ -1,4 +1,4 @@
-module main
+module github.com/Aimlessfish/tg_shop_bot
 
 go 1.23.4
 
