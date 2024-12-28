@@ -9,6 +9,6 @@ function to generate button text {
         {"checkout", "back"},
     }
 }
-return shop.CreateInlineKeyboard(buttons)
+return controller.CreateInlineKeyboard(buttons)
 
 github.com/go-telegram-bot-api/telegram-bot-api/v5

@@ -101,11 +101,30 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	return nil
 }
 
-func GenerateInlineKeyboard() error {
+func GenerateInlineKeyboard(buttons [][]string) (tgbotapi.InlineKeyboardMarkup, error) {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "InlineGenerator")
 
-	return nil
+	// Create an empty slice for Telegram inline keyboard rows
+	var keyboardRows [][]tgbotapi.InlineKeyboardButton
 
+	// Iterate over the input to construct the inline keyboard rows
+	for _, row := range buttons {
+		var keyboardRow []tgbotapi.InlineKeyboardButton
+		for _, buttonText := range row {
+			// Create a button with callback data (can customize callback data as needed)
+			button := tgbotapi.NewInlineKeyboardButtonData(buttonText, buttonText)
+			keyboardRow = append(keyboardRow, button)
+		}
+		keyboardRows = append(keyboardRows, keyboardRow)
+	}
+
+	// Create the final inline keyboard markup
+	inlineKeyboard := tgbotapi.InlineKeyboardMarkup{
+		InlineKeyboard: keyboardRows,
+	}
+
+	logger.Info("Generated inline keyboard successfully")
+	return inlineKeyboard, nil
 }
