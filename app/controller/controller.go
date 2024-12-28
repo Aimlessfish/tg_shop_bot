@@ -84,9 +84,17 @@ func CommandControl(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 }
 
 func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleStart")
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Welcome! Please use the buttons to navigate the store.")
 	bot.Send(msg)
-	return nil
+	keyboard, err := index.buttons()
+	if err != nil {
+		logger.Warn("Error", "Serving index buttons failed", err.Error())
+		os.Exit(1)
+	}
+	return keyboard, nil
 }
 
 func HandleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {

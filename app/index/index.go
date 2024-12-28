@@ -4,17 +4,21 @@ import (
 	"log/slog"
 	"os"
 
-	controller "github.com/Aimlessfish/tg_shop_bot/controller"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func indexButtons() (tgbotapi.InlineKeyboardMarkup, error) {
+func Buttons() (tgbotapi.InlineKeyboardMarkup, error) {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "indexButtons")
 
-	buttons := [][]string{
-		{"Shop", "Support", "Tracking"},
+	buttons := [][]tgbotapi.InlineKeyboardButton{
+		{
+			tgbotapi.NewInlineKeyboardButtonData("Shop", "shop"),
+			tgbotapi.NewInlineKeyboardButtonData("Support", "support"),
+			tgbotapi.NewInlineKeyboardButtonData("Tracking", "tracking"),
+		},
 	}
-	return controller.GenerateInlineKeyboard(buttons)
+	keyboard := tgbotapi.NewInlineKeyboardMarkup(buttons...)
+	return keyboard, nil
 }
