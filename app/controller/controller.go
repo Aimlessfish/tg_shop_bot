@@ -6,12 +6,18 @@ import (
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
 )
 
 func StartBot() error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "Shop")
+
+	err := godotenv.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load .env file: %w", err)
+	}
 
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	if botToken == "" {
