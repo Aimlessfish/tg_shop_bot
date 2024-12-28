@@ -129,6 +129,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	switch query.Data {
 	case "shop":
 		messageText = "Displaying all items in shop!"
+
 	case "support":
 		messageText = "Please contact @username for support"
 	case "tracking":
