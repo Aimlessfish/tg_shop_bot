@@ -92,7 +92,6 @@ func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	keyboard := index.Buttons()
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Welcome! Please use the buttons to navigate the store.")
-	bot.Send(msg)
 	msg.ReplyMarkup = keyboard
 
 	_, err := bot.Send(msg)
@@ -117,30 +116,30 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	return nil
 }
 
-func GenerateInlineKeyboard(buttons [][]string) (tgbotapi.InlineKeyboardMarkup, error) {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-	logger = slog.With("LogID", "InlineGenerator")
+// func GenerateInlineKeyboard(buttons [][]string) (tgbotapi.InlineKeyboardMarkup, error) {
+// 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+// 	slog.SetDefault(logger)
+// 	logger = slog.With("LogID", "InlineGenerator")
 
-	// Create an empty slice for Telegram inline keyboard rows
-	var keyboardRows [][]tgbotapi.InlineKeyboardButton
+// 	// Create an empty slice for Telegram inline keyboard rows
+// 	var keyboardRows [][]tgbotapi.InlineKeyboardButton
 
-	// Iterate over the input to construct the inline keyboard rows
-	for _, row := range buttons {
-		var keyboardRow []tgbotapi.InlineKeyboardButton
-		for _, buttonText := range row {
-			// Create a button with callback data (can customize callback data as needed)
-			button := tgbotapi.NewInlineKeyboardButtonData(buttonText, buttonText)
-			keyboardRow = append(keyboardRow, button)
-		}
-		keyboardRows = append(keyboardRows, keyboardRow)
-	}
+// 	// Iterate over the input to construct the inline keyboard rows
+// 	for _, row := range buttons {
+// 		var keyboardRow []tgbotapi.InlineKeyboardButton
+// 		for _, buttonText := range row {
+// 			// Create a button with callback data (can customize callback data as needed)
+// 			button := tgbotapi.NewInlineKeyboardButtonData(buttonText, buttonText)
+// 			keyboardRow = append(keyboardRow, button)
+// 		}
+// 		keyboardRows = append(keyboardRows, keyboardRow)
+// 	}
 
-	// Create the final inline keyboard markup
-	inlineKeyboard := tgbotapi.InlineKeyboardMarkup{
-		InlineKeyboard: keyboardRows,
-	}
+// 	// Create the final inline keyboard markup
+// 	inlineKeyboard := tgbotapi.InlineKeyboardMarkup{
+// 		InlineKeyboard: keyboardRows,
+// 	}
 
-	logger.Info("Generated inline keyboard successfully")
-	return inlineKeyboard, nil
-}
+// 	logger.Info("Generated inline keyboard successfully")
+// 	return inlineKeyboard, nil
+// }
