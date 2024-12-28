@@ -110,36 +110,37 @@ func HandleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 }
 
 func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleCallbackQuery")
 	query := update.CallbackQuery
+
+	//log the callback data & respond
+	logger.Info("Callback received!", "Data: ", query.Data)
 	response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-	bot.Request(response)
+	_, err := bot.Request(response)
+	if err != nil {
+		logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
+		os.Exit(1)
+	}
+
+	//handle the callback data
+	var messageText string
+	switch query.Data {
+	case "shop":
+		messageText = "Displaying all items in shop!"
+	case "support":
+		messageText = "Please contact @username for support"
+	case "tracking":
+		messageText = "Please wait while we get your tracking number!	"
+	}
+
+	msg := tgbotapi.NewMessage(query.Message.Chat.ID, messageText)
+	_, err = bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error", "Failed to follow up the callback query", err.Error())
+		return err
+	}
+
 	return nil
 }
-
-// func GenerateInlineKeyboard(buttons [][]string) (tgbotapi.InlineKeyboardMarkup, error) {
-// 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-// 	slog.SetDefault(logger)
-// 	logger = slog.With("LogID", "InlineGenerator")
-
-// 	// Create an empty slice for Telegram inline keyboard rows
-// 	var keyboardRows [][]tgbotapi.InlineKeyboardButton
-
-// 	// Iterate over the input to construct the inline keyboard rows
-// 	for _, row := range buttons {
-// 		var keyboardRow []tgbotapi.InlineKeyboardButton
-// 		for _, buttonText := range row {
-// 			// Create a button with callback data (can customize callback data as needed)
-// 			button := tgbotapi.NewInlineKeyboardButtonData(buttonText, buttonText)
-// 			keyboardRow = append(keyboardRow, button)
-// 		}
-// 		keyboardRows = append(keyboardRows, keyboardRow)
-// 	}
-
-// 	// Create the final inline keyboard markup
-// 	inlineKeyboard := tgbotapi.InlineKeyboardMarkup{
-// 		InlineKeyboard: keyboardRows,
-// 	}
-
-// 	logger.Info("Generated inline keyboard successfully")
-// 	return inlineKeyboard, nil
-// }
