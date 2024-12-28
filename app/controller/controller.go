@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	index "github.com/Aimlessfish/tg_shop_bot/index"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/joho/godotenv"
@@ -89,7 +90,7 @@ func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	logger = slog.With("LogID", "HandleStart")
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Welcome! Please use the buttons to navigate the store.")
 	bot.Send(msg)
-	keyboard, err := index.buttons()
+	keyboard, err := index.Buttons()
 	if err != nil {
 		logger.Warn("Error", "Serving index buttons failed", err.Error())
 		os.Exit(1)
