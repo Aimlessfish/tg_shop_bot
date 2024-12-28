@@ -88,14 +88,20 @@ func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "HandleStart")
+
+	keyboard := index.Buttons()
+
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Welcome! Please use the buttons to navigate the store.")
 	bot.Send(msg)
-	keyboard, err := index.Buttons()
+	msg.ReplyMarkup = keyboard
+
+	_, err := bot.Send(msg)
 	if err != nil {
-		logger.Warn("Error", "Serving index buttons failed", err.Error())
+		logger.Warn("Error", "Failed to send keyboard", err.Error())
 		os.Exit(1)
 	}
-	return keyboard, nil
+
+	return nil
 }
 
 func HandleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
