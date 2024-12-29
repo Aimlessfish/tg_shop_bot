@@ -6,6 +6,7 @@ import (
 	"os"
 
 	index "github.com/Aimlessfish/tg_shop_bot/index"
+	orders "github.com/Aimlessfish/tg_shop_bot/previous"
 	shop "github.com/Aimlessfish/tg_shop_bot/shop"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
@@ -198,7 +199,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 		}
 
 		messageText = "Please wait while we retrieve your previous orders..."
-		keyboard = index.Buttons()
+		keyboard = orders.Buttons()
 		msg := tgbotapi.NewMessage(query.Message.Chat.ID, messageText)
 		msg.ReplyMarkup = keyboard
 		sentMsg, err := bot.Send(msg)
@@ -209,6 +210,9 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 		lastMessageMap[chatID] = sentMsg.MessageID
 
 	case "back":
+		messageText = "Taking you to the previous menu!"
+
+	case "back_main":
 		if lastMsgID, exists := lastMessageMap[chatID]; exists {
 			deleteConfig := tgbotapi.DeleteMessageConfig{
 				ChatID:    chatID,
@@ -227,7 +231,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			return err
 		}
 		keyboard := index.Buttons()
-		msg := tgbotapi.NewMessage(chatID, "Taking you back...")
+		msg := tgbotapi.NewMessage(chatID, "Main Menu")
 		msg.ReplyMarkup = keyboard
 
 		sentMsg, err := bot.Send(msg)

@@ -14,7 +14,7 @@ func Buttons() tgbotapi.InlineKeyboardMarkup {
 
 	buttons := [][]tgbotapi.InlineKeyboardButton{
 		{
-			tgbotapi.NewInlineKeyboardButtonData("Back", "back"),
+			tgbotapi.NewInlineKeyboardButtonData("Main Menu", "back_main"),
 		},
 	}
 
