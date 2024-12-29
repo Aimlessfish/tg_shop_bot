@@ -184,6 +184,30 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	case "tracking":
 		messageText = "Please wait while we get your tracking number..."
 
+	case "orders":
+		if lastMsgID, exists := lastMessageMap[chatID]; exists {
+			deleteConfig := tgbotapi.DeleteMessageConfig{
+				ChatID:    chatID,
+				MessageID: lastMsgID,
+			}
+			_, err := bot.Request(deleteConfig)
+			if err != nil {
+				logger.Warn("Error deleting previous message", "Error: ", err.Error())
+			}
+			logger.Info("Passed previous message check!")
+		}
+
+		messageText = "Please wait while we retrieve your previous orders..."
+		keyboard = index.Buttons()
+		msg := tgbotapi.NewMessage(query.Message.Chat.ID, messageText)
+		msg.ReplyMarkup = keyboard
+		sentMsg, err := bot.Send(msg)
+		if err != nil {
+			logger.Warn("Error", "Failed to follow up the callback query", err.Error())
+			return err
+		}
+		lastMessageMap[chatID] = sentMsg.MessageID
+
 	case "back":
 		if lastMsgID, exists := lastMessageMap[chatID]; exists {
 			deleteConfig := tgbotapi.DeleteMessageConfig{
