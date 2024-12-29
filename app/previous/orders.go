@@ -10,7 +10,7 @@ import (
 func Buttons() tgbotapi.InlineKeyboardMarkup {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
-	logger = slog.With("LogID", "button: previousOrders")
+	logger = slog.With("LogID", "buttons: previousOrders")
 
 	buttons := [][]tgbotapi.InlineKeyboardButton{
 		{

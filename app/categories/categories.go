@@ -1,4 +1,4 @@
-package index
+package categories
 
 import (
 	"log/slog"
@@ -10,14 +10,11 @@ import (
 func Buttons() tgbotapi.InlineKeyboardMarkup {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
-	logger = slog.With("LogID", "buttons: index")
+	logger = slog.With("LogID", "buttons: Categories")
 
 	buttons := [][]tgbotapi.InlineKeyboardButton{
 		{
-			tgbotapi.NewInlineKeyboardButtonData("Shop", "shop"),
-			tgbotapi.NewInlineKeyboardButtonData("Support", "support"),
-			tgbotapi.NewInlineKeyboardButtonData("Tracking", "tracking"),
-			tgbotapi.NewInlineKeyboardButtonData("Orders", "orders"),
+			tgbotapi.NewInlineKeyboardButtonData("Main Menu", "back_main"),
 		},
 	}
 

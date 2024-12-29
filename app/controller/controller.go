@@ -121,8 +121,8 @@ func HandleShop(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	logger = slog.With("LogID", "HandleShop")
 
 	chatID := message.Chat.ID
-	messageText := "Displaying all items in shop!"
-	keyboard := shop.Buttons()
+	messageText := "Displaying all categories in shop!"
+	keyboard := shop.Catergories()
 	msg := tgbotapi.NewMessage(message.Chat.ID, messageText)
 	msg.ReplyMarkup = keyboard
 	sentMsg, err := bot.Send(msg)
@@ -340,6 +340,10 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
 			return err
 		}
+
+	case "category":
+
+	case "item":
 
 	case "back":
 		err = HandleBackButton(bot, query.Message)
