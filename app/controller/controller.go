@@ -8,6 +8,7 @@ import (
 	index "github.com/Aimlessfish/tg_shop_bot/index"
 	orders "github.com/Aimlessfish/tg_shop_bot/previous"
 	shop "github.com/Aimlessfish/tg_shop_bot/shop"
+	tracking "github.com/Aimlessfish/tg_shop_bot/tracking"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/joho/godotenv"
@@ -216,7 +217,7 @@ func HandleTracking(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 		}
 		logger.Info("Passed previous message check!")
 	}
-	keyboard := index.Buttons()
+	keyboard := tracking.Buttons()
 	msg := tgbotapi.NewMessage(chatID, messageText)
 	msg.ReplyMarkup = keyboard
 	sentMsg, err := bot.Send(msg)
