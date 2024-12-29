@@ -114,6 +114,174 @@ func HandleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	return nil
 }
 
+func HandleShop(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleShop")
+
+	chatID := message.Chat.ID
+	messageText := "Displaying all items in shop!"
+	keyboard := shop.Buttons()
+	msg := tgbotapi.NewMessage(message.Chat.ID, messageText)
+	msg.ReplyMarkup = keyboard
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error: ", "Failed serve func HandleShop", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
+func HandleSupport(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleShop")
+
+	chatID := message.Chat.ID
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+	messageText := "Please contact @username for support"
+	keyboard := index.Buttons()
+	msg := tgbotapi.NewMessage(message.Chat.ID, messageText)
+	msg.ReplyMarkup = keyboard
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error", "Failed to follow up the callback query", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
+func HandlePreviousOrders(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleShop")
+
+	chatID := message.Chat.ID
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+
+	messageText := "Please wait while we retrieve your previous orders..."
+	keyboard := orders.Buttons()
+	msg := tgbotapi.NewMessage(message.Chat.ID, messageText)
+	msg.ReplyMarkup = keyboard
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error", "Failed to follow up the callback query", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
+func HandleTracking(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleTracking")
+
+	chatID := message.Chat.ID
+	messageText := "Please wait while we get your tracking number..."
+
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+	keyboard := index.Buttons()
+	msg := tgbotapi.NewMessage(chatID, messageText)
+	msg.ReplyMarkup = keyboard
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error sending new message with buttons", "error", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
+func HandleBackButton(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleMainMenu")
+
+	chatID := message.Chat.ID
+
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+	return nil
+}
+
+func HandleMainMenu(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleMainMenu")
+
+	chatID := message.Chat.ID
+
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+	keyboard := index.Buttons()
+	msg := tgbotapi.NewMessage(chatID, "Main Menu")
+	msg.ReplyMarkup = keyboard
+
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error sending new message with buttons", "error", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
 func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
@@ -143,104 +311,49 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	}
 
 	//handle the callback data
-	var messageText string
-	var keyboard tgbotapi.InlineKeyboardMarkup
 
 	switch query.Data {
 	case "shop":
-		messageText = "Displaying all items in shop!"
-		keyboard = shop.Buttons()
-		msg := tgbotapi.NewMessage(query.Message.Chat.ID, messageText)
-		msg.ReplyMarkup = keyboard
-		sentMsg, err := bot.Send(msg)
+		err = HandleShop(bot, query.Message)
 		if err != nil {
-			logger.Warn("Error", "Failed to follow up the callback query", err.Error())
+			logger.Warn("Error: ", "Callback query failed. Case: HandleShop", err.Error())
 			return err
 		}
-		lastMessageMap[chatID] = sentMsg.MessageID
 
 	case "support":
-		if lastMsgID, exists := lastMessageMap[chatID]; exists {
-			deleteConfig := tgbotapi.DeleteMessageConfig{
-				ChatID:    chatID,
-				MessageID: lastMsgID,
-			}
-			_, err := bot.Request(deleteConfig)
-			if err != nil {
-				logger.Warn("Error deleting previous message", "Error: ", err.Error())
-			}
-			logger.Info("Passed previous message check!")
-		}
-		messageText = "Please contact @username for support"
-		keyboard = index.Buttons()
-		msg := tgbotapi.NewMessage(query.Message.Chat.ID, messageText)
-		msg.ReplyMarkup = keyboard
-		sentMsg, err := bot.Send(msg)
+		err = HandleSupport(bot, query.Message)
 		if err != nil {
-			logger.Warn("Error", "Failed to follow up the callback query", err.Error())
-			return err
+			logger.Warn("Error: ", "Callback query failed. Case: HandleSupport", err.Error())
 		}
-		lastMessageMap[chatID] = sentMsg.MessageID
 
 	case "tracking":
-		messageText = "Please wait while we get your tracking number..."
+		err = HandleTracking(bot, query.Message)
+		if err != nil {
+			logger.Warn("Error: ", "Callback query failed. Case: HandleTracking", err.Error())
+			return err
+		}
 
 	case "orders":
-		if lastMsgID, exists := lastMessageMap[chatID]; exists {
-			deleteConfig := tgbotapi.DeleteMessageConfig{
-				ChatID:    chatID,
-				MessageID: lastMsgID,
-			}
-			_, err := bot.Request(deleteConfig)
-			if err != nil {
-				logger.Warn("Error deleting previous message", "Error: ", err.Error())
-			}
-			logger.Info("Passed previous message check!")
-		}
-
-		messageText = "Please wait while we retrieve your previous orders..."
-		keyboard = orders.Buttons()
-		msg := tgbotapi.NewMessage(query.Message.Chat.ID, messageText)
-		msg.ReplyMarkup = keyboard
-		sentMsg, err := bot.Send(msg)
+		err = HandlePreviousOrders(bot, query.Message)
 		if err != nil {
-			logger.Warn("Error", "Failed to follow up the callback query", err.Error())
+			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
 			return err
 		}
-		lastMessageMap[chatID] = sentMsg.MessageID
 
 	case "back":
-		messageText = "Taking you to the previous menu!"
+		err = HandleBackButton(bot, query.Message)
+		if err != nil {
+			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
+			return err
+		}
 
 	case "back_main":
-		if lastMsgID, exists := lastMessageMap[chatID]; exists {
-			deleteConfig := tgbotapi.DeleteMessageConfig{
-				ChatID:    chatID,
-				MessageID: lastMsgID,
-			}
-			_, err := bot.Request(deleteConfig)
-			if err != nil {
-				logger.Warn("Error deleting previous message", "Error: ", err.Error())
-			}
-			logger.Info("Passed previous message check!")
-		}
-
-		response := tgbotapi.NewCallback(query.ID, "Taking you back...")
-		if _, err := bot.Request(response); err != nil {
-			logger.Warn("Error sending callback response", "error", err.Error())
-			return err
-		}
-		keyboard := index.Buttons()
-		msg := tgbotapi.NewMessage(chatID, "Main Menu")
-		msg.ReplyMarkup = keyboard
-
-		sentMsg, err := bot.Send(msg)
+		err = HandleMainMenu(bot, query.Message)
 		if err != nil {
-			logger.Warn("Error sending new message with buttons", "error", err.Error())
+			logger.Warn("Error: ", "Callback query failed. Case: HandleShop", err.Error())
 			return err
 		}
-		lastMessageMap[chatID] = sentMsg.MessageID
-	}
 
+	}
 	return nil
 }
