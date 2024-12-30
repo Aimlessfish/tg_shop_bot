@@ -227,7 +227,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleMainMenu(bot, query.Message)
+		err = handler.HandleMainMenu(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandleShop", err.Error())
 			return err
