@@ -62,7 +62,7 @@ func HandleIncomingMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	if update.Message != nil {
 		// If it's a command, process it with CommandControl
 		if update.Message.IsCommand() {
-			CommandControl(bot, update.Message) // Corrected: use `update.Message`
+			CommandControl(bot, update.Message)
 		} else if update.CallbackQuery != nil { // Handle callback query if present
 			HandleCallbackQuery(bot, update) // Call HandleCallbackQuery function
 		}
@@ -230,6 +230,70 @@ func HandleTracking(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	return nil
 }
 
+func HandleListings(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleListings")
+
+	chatID := message.Chat.ID
+
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+	keyboard := shop.Listings()
+	msg := tgbotapi.NewMessage(chatID, "Listing all items!")
+	msg.ReplyMarkup = keyboard
+
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error sending new message with buttons", "error", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
+func HandleItem(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleItem")
+
+	chatID := message.Chat.ID
+
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
+	keyboard := shop.Item()
+	msg := tgbotapi.NewMessage(chatID, "{ .ItemName }\n{ .ItemDescription }\n{ .Prices }")
+	msg.ReplyMarkup = keyboard
+
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error sending new message with buttons", "error", err.Error())
+		return err
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
 func HandleBackButton(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
@@ -342,9 +406,17 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 		}
 
 	case "category":
-
+		err = HandleListings(bot, query.Message)
+		if err != nil {
+			logger.Warn("Error: ", "Callback query failed. Case: HandleListings", err.Error())
+			return err
+		}
 	case "item":
-
+		err = HandleItem(bot, query.Message)
+		if err != nil {
+			logger.Warn("Error: ", "Callback query failed. Case: HandleItem", err.Error())
+			return err
+		}
 	case "back":
 		err = HandleBackButton(bot, query.Message)
 		if err != nil {

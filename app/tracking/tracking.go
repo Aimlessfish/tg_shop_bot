@@ -13,9 +13,9 @@ func Buttons() tgbotapi.InlineKeyboardMarkup {
 	logger = slog.With("LogID", "buttons: Tracking")
 
 	buttons := [][]tgbotapi.InlineKeyboardButton{
-		{
+		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("Main Menu", "back_main"),
-		},
+		),
 	}
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(buttons...)

@@ -13,12 +13,13 @@ func Buttons() tgbotapi.InlineKeyboardMarkup {
 	logger = slog.With("LogID", "buttons: index")
 
 	buttons := [][]tgbotapi.InlineKeyboardButton{
-		{
+
+		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("Shop", "shop"),
 			tgbotapi.NewInlineKeyboardButtonData("Support", "support"),
 			tgbotapi.NewInlineKeyboardButtonData("Tracking", "tracking"),
 			tgbotapi.NewInlineKeyboardButtonData("Orders", "orders"),
-		},
+		),
 	}
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(buttons...)
