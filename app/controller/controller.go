@@ -5,11 +5,14 @@ import (
 	"log/slog"
 	"os"
 
+	handler "github.com/Aimlessfish/tg_shop_bot/handlers"
 	index "github.com/Aimlessfish/tg_shop_bot/index"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/joho/godotenv"
 )
+
+var lastMessageMap = make(map[int64]int)
 
 func StartBot() error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -73,7 +76,7 @@ func CommandControl(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	case "start":
 		HandleStart(bot, message)
 	case "help":
-		HandleHelp(bot, message)
+		handler.HandleHelp(bot, message)
 	default:
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Unknown command - Use /help for help!")
 		if _, err := bot.Send(msg); err != nil {
@@ -129,7 +132,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleShop(bot, query.Message)
+		err = handler.HandleShop(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandleShop", err.Error())
 			return err
@@ -143,7 +146,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleSupport(bot, query.Message)
+		err = handler.HandleSupport(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandleSupport", err.Error())
 		}
@@ -156,7 +159,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleTracking(bot, query.Message)
+		err = handler.HandleTracking(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandleTracking", err.Error())
 			return err
@@ -170,7 +173,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandlePreviousOrders(bot, query.Message)
+		err = handler.HandlePreviousOrders(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
 			return err
@@ -184,7 +187,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleListings(bot, query.Message)
+		err = handler.HandleListings(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandleListings", err.Error())
 			return err
@@ -197,7 +200,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleItem(bot, query.Message)
+		err = handler.HandleItem(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandleItem", err.Error())
 			return err
@@ -210,7 +213,7 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
 			os.Exit(1)
 		}
-		err = HandleBackButton(bot, query.Message)
+		err = handler.HandleBackButton(bot, query.Message)
 		if err != nil {
 			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
 			return err
