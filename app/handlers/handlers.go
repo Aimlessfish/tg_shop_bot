@@ -4,10 +4,10 @@ import (
 	"log/slog"
 	"os"
 
-	index "github.com/Aimlessfish/tg_shop_bot/index"
-	orders "github.com/Aimlessfish/tg_shop_bot/previous"
-	shop "github.com/Aimlessfish/tg_shop_bot/shop"
-	tracking "github.com/Aimlessfish/tg_shop_bot/tracking"
+	index "github.com/Aimlessfish/tg_shop_bot/app/index"
+	orders "github.com/Aimlessfish/tg_shop_bot/app/previous"
+	shop "github.com/Aimlessfish/tg_shop_bot/app/shop"
+	tracking "github.com/Aimlessfish/tg_shop_bot/app/tracking"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 

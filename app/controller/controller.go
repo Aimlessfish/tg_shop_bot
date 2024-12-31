@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os"
 
-	handler "github.com/Aimlessfish/tg_shop_bot/handlers"
-	index "github.com/Aimlessfish/tg_shop_bot/index"
+	handler "github.com/Aimlessfish/tg_shop_bot/app/handlers"
+	index "github.com/Aimlessfish/tg_shop_bot/app/index"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/joho/godotenv"
@@ -120,6 +120,17 @@ func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	logger = slog.With("LogID", "HandleCallbackQuery")
 	query := update.CallbackQuery
 	chatID := query.Message.Chat.ID
+	if lastMsgID, exists := lastMessageMap[chatID]; exists {
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    chatID,
+			MessageID: lastMsgID,
+		}
+		_, err := bot.Request(deleteConfig)
+		if err != nil {
+			logger.Warn("Error deleting previous message", "Error: ", err.Error())
+		}
+		logger.Info("Passed previous message check!")
+	}
 
 	lastMessageMap[chatID] = query.Message.MessageID
 
