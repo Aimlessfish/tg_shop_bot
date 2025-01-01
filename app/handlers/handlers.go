@@ -14,6 +14,33 @@ import (
 
 var lastMessageMap = make(map[int64]int)
 
+func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	logger = slog.With("LogID", "HandleStart")
+	chatID := message.Chat.ID
+	keyboard := index.Buttons()
+	var username string
+
+	//HANDLE DB CONNECT
+	//RETURN VENDOR_ID, SALES, RATING, LAST_SEEN
+
+	username = message.From.UserName
+	msg := tgbotapi.NewMessage(message.Chat.ID, " { .VENDOR_NAME }\nSales:{ .VENDOR_SALES }\nRating:{ .VENDOR_RATING }\nLast Seen:{ .LAST_SEEN_STATUS }")
+	bot.Send(msg)
+	msg = tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Welcome <b>%v</b>! Please use the buttons to navigate the store", username))
+	msg.ReplyMarkup = keyboard
+	msg.ParseMode = "HTML"
+	sentMsg, err := bot.Send(msg)
+	if err != nil {
+		logger.Warn("Error", "Failed to send keyboard", err.Error())
+		os.Exit(1)
+	}
+	lastMessageMap[chatID] = sentMsg.MessageID
+
+	return nil
+}
+
 func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
