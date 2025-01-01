@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func dbInit() (*sql.DB, error) {
+func DbInit() (*sql.DB, error) {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "API: dbConnect() ")
