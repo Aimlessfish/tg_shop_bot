@@ -12,7 +12,13 @@ func main() {
 	slog.SetDefault(logger)
 	logger = slog.With("LogID", "Main")
 
-	err := controller.StartBot()
+	db, err := api.dbInit()
+	if err != nil {
+		logger.Warn("Error", "Running api.dbInit failed: ", err.Error())
+		os.Exit(1)
+	}
+
+	err = controller.StartBot()
 	if err != nil {
 		logger.Warn("Error starting shop!", "controller.StartBot", err.Error())
 		os.Exit(1)
