@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"os"
 
-	api "github.com/Aimlessfish/tg_shop_bot/api"
-	controller "github.com/Aimlessfish/tg_shop_bot/app/controller"
+	"github.com/Aimlessfish/tg_shop_bot/api"
+	"github.com/Aimlessfish/tg_shop_bot/app/controller"
 )
 
 func main() {
