@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/Aimlessfish/tg_shop_bot/api"
 	handler "github.com/Aimlessfish/tg_shop_bot/app/handlers"
 	index "github.com/Aimlessfish/tg_shop_bot/app/index"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -26,8 +27,8 @@ func StartBot() error {
 
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	if botToken == "" {
-		logger.Warn("Bot token is missing in the environment variables.")
-		return fmt.Errorf("bot token is missing")
+		logger.Warn("Bot token is missing or broken in the environment variables.")
+		return fmt.Errorf("bot token is missing or broken")
 	}
 
 	bot, err := tgbotapi.NewBotAPI(botToken)
@@ -37,6 +38,13 @@ func StartBot() error {
 	}
 
 	logger.Info(fmt.Sprintf("Connected to account %v", bot.Self.UserName))
+
+	db, err := api.DbInit()
+	if err != nil {
+		logger.Warn("Error", "Running api.dbInit failed: ", err.Error())
+		os.Exit(1)
+	}
+	defer db.Close() // REMOVE
 
 	//update handler
 	update_channel := tgbotapi.NewUpdate(0)
@@ -49,7 +57,7 @@ func StartBot() error {
 			go HandleIncomingMessage(bot, update)
 		} else if update.CallbackQuery != nil { //manage button presses
 			logger.Info("Received callback query!", "callbackData", update.CallbackQuery.Data)
-			go HandleCallbackQuery(bot, update)
+			go handler.HandleCallbackQuery(bot, update)
 		}
 	}
 	return nil
@@ -62,7 +70,7 @@ func HandleIncomingMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 		if update.Message.IsCommand() {
 			CommandControl(bot, update.Message)
 		} else if update.CallbackQuery != nil { // Handle callback query if present
-			HandleCallbackQuery(bot, update) // Call HandleCallbackQuery function
+			go handler.HandleCallbackQuery(bot, update) // Call HandleCallbackQuery function
 		}
 	}
 	return nil // Return nil if no errors
@@ -111,139 +119,5 @@ func HandleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
 	}
 	lastMessageMap[chatID] = sentMsg.MessageID
 
-	return nil
-}
-
-func HandleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-	logger = slog.With("LogID", "HandleCallbackQuery")
-	query := update.CallbackQuery
-	chatID := query.Message.Chat.ID
-	if lastMsgID, exists := lastMessageMap[chatID]; exists {
-		deleteConfig := tgbotapi.DeleteMessageConfig{
-			ChatID:    chatID,
-			MessageID: lastMsgID,
-		}
-		_, err := bot.Request(deleteConfig)
-		if err != nil {
-			logger.Warn("Error deleting previous message", "Error: ", err.Error())
-		}
-		logger.Info("Passed previous message check!")
-	}
-
-	lastMessageMap[chatID] = query.Message.MessageID
-
-	switch query.Data {
-	case "shop":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleShop(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandleShop", err.Error())
-			return err
-		}
-
-	case "support":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleSupport(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandleSupport", err.Error())
-		}
-
-	case "tracking":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleTracking(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandleTracking", err.Error())
-			return err
-		}
-
-	case "orders":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandlePreviousOrders(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
-			return err
-		}
-
-	case "category":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleListings(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandleListings", err.Error())
-			return err
-		}
-	case "item":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleItem(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandleItem", err.Error())
-			return err
-		}
-	case "back":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleBackButton(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandlePreviousOrders", err.Error())
-			return err
-		}
-
-	case "back_main":
-		logger.Info("Callback received!", "Data: ", query.Data)
-		response := tgbotapi.NewCallback(query.ID, fmt.Sprintf("Taking you to %v", query.Data))
-		_, err := bot.Request(response)
-		if err != nil {
-			logger.Warn("Error sending callback response for query: ", query.Data, err.Error())
-			os.Exit(1)
-		}
-		err = handler.HandleMainMenu(bot, query.Message)
-		if err != nil {
-			logger.Warn("Error: ", "Callback query failed. Case: HandleShop", err.Error())
-			return err
-		}
-
-	}
 	return nil
 }
